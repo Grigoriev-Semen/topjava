@@ -6,11 +6,14 @@
 <head>
     <title>Meals</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <jsp:useBean id="meal" type="ru.javawebinar.topjava.model.Meal" scope="request"/>
 </head>
 <body>
 
+<h2>${param.action == 'add' ? 'Добавить еду' : 'Изменить еду'}</h2>
+<hr>
+<jsp:useBean id="meal" type="ru.javawebinar.topjava.model.Meal" scope="request"/>
 <form method="post" action="meals" enctype="application/x-www-form-urlencoded">
+    <input type="hidden" name="id" value="${meal.id}">
     <dl>
         <dt>Дата/Время:</dt>
         <dd><input type="datetime-local" name="localDateTime" value="${meal.dateTime}"></dd>
@@ -23,11 +26,12 @@
 
     <dl>
         <dt>Калории:</dt>
-        <dd><input type="text" name="calories" value="${meal.calories}"></dd>
+        <dd><input type="text" name="calories" required
+                   pattern="[0-9]*"
+                   title="Поле должно содержать только числа" value="${meal.calories}"></dd>
     </dl>
-    <input type="hidden" name="id" value="${meal.id}">
     <hr>
-    <button type="submit">Сохранить/Изменить</button>
+    <button type="submit">${param.action == 'add' ? 'Сохранить' : 'Изменить'}</button>
     <button type="reset" onclick="window.history.back()">Отменить</button>
 </form>
 

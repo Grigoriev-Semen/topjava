@@ -1,8 +1,8 @@
 package ru.javawebinar.topjava.web;
 
 import org.slf4j.Logger;
-import ru.javawebinar.topjava.Storage.Storage;
-import ru.javawebinar.topjava.Storage.StorageMap;
+import ru.javawebinar.topjava.Storage.MealRepository;
+import ru.javawebinar.topjava.Storage.StorageForMeal;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.model.MealTo;
 import ru.javawebinar.topjava.util.MealsUtil;
@@ -14,55 +14,55 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
 public class MealServlet extends HttpServlet {
     private static final Logger log = getLogger(MealServlet.class);
-    private Storage storage;
+    private StorageForMeal storageForMeal;
+    private final int CALORIES_PER_DAY = 2000;
 
     @Override
     public void init() throws ServletException {
         super.init();
-        storage = new StorageMap();
-        for (Meal meal : MealsUtil.getListMealTo()) {
-            storage.create(meal);
-        }
+        storageForMeal = new MealRepository();
     }
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String action = request.getParameter("action");
         if (action == null) {
-            List<MealTo> mealsTo = MealsUtil.filteredByStreams(storage.getAll(), LocalTime.MIN, LocalTime.MAX, 2000);
+            List<MealTo> mealsTo = MealsUtil.filteredByStreams(storageForMeal.getAll(), LocalTime.MIN, LocalTime.MAX, CALORIES_PER_DAY);
             request.setAttribute("meals", mealsTo);
-            request.getRequestDispatcher("/WEB-INF/meal/listMeals.jsp").forward(request, response);
+            request.getRequestDispatcher("/WEB-INF/listMeals.jsp").forward(request, response);
             return;
         }
 
-        Meal meal;
-        int id;
         switch (action) {
-            case "delete":
-                id = Integer.parseInt(request.getParameter("id"));
-                log.debug("Delete meal: id - " + id);
-                storage.delete(id);
+            case "delete": {
+                int id = getAndParseId(request);
+                log.debug("Delete meal id={} and redirect to meals", id);
+                storageForMeal.delete(id);
                 response.sendRedirect("meals");
                 return;
-            case "add":
+            }
+            case "add": {
                 log.debug("Add meal.");
-                meal = new Meal();
+                Meal meal = new Meal(LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES), "", 100);
                 request.setAttribute("meal", meal);
-                request.getRequestDispatcher("/WEB-INF/meal/addMeal.jsp").forward(request, response);
+                request.getRequestDispatcher("/WEB-INF/addMeal.jsp").forward(request, response);
                 break;
-            case "edit":
-                id = Integer.parseInt(request.getParameter("id"));
+            }
+            case "edit": {
+                int id = getAndParseId(request);
                 log.debug("Edit meal :" + id);
-                meal = storage.get(id);
+                Meal meal = storageForMeal.get(id);
                 request.setAttribute("meal", meal);
-                request.getRequestDispatcher("/WEB-INF/meal/addMeal.jsp").forward(request, response);
+                request.getRequestDispatcher("/WEB-INF/addMeal.jsp").forward(request, response);
                 break;
+            }
         }
         response.sendRedirect("listMeals.jsp");
     }
@@ -75,16 +75,21 @@ public class MealServlet extends HttpServlet {
         LocalDateTime ldt = LocalDateTime.parse(request.getParameter("localDateTime"));
         String description = request.getParameter("description");
         int calories = Integer.parseInt(request.getParameter("calories"));
-        int id = Integer.parseInt(request.getParameter("id"));
+        String id = request.getParameter("id");
 
-        log.debug("Get parametres: id - " + id + "Date - " + ldt + "calories - " + calories + "description - " + description);
-        if (id == 0) {
-            storage.create(new Meal(ldt, description, calories));
+        log.debug("Get parameters: id = {}, Date - {}, calories - {}, description - {}", id, ldt, calories, description);
+
+        if (id.isEmpty()) {
+            storageForMeal.create(new Meal(ldt, description, calories));
             log.debug("New meal create and add");
         } else {
-            storage.update(new Meal(ldt, description, calories, id));
+            storageForMeal.update(new Meal(Integer.parseInt(id), ldt, description, calories));
             log.debug("Meal update");
         }
         response.sendRedirect("meals");
+    }
+
+    private int getAndParseId(HttpServletRequest request) {
+        return Integer.parseInt(request.getParameter("id"));
     }
 }
