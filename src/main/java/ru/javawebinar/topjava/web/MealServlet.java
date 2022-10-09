@@ -22,7 +22,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 public class MealServlet extends HttpServlet {
     private static final Logger log = getLogger(MealServlet.class);
     private MealStorage mealStorage;
-    private final static int CALORIES_PER_DAY = 2000;
+    private static final int CALORIES_PER_DAY = 2000;
 
     @Override
     public void init() throws ServletException {

@@ -27,12 +27,14 @@ public class InMemoryMealRepository implements MealStorage {
     @Override
     public Meal create(Meal meal) {
         meal.setId(id.getAndIncrement());
-        return storage.put(meal.getId(), meal);
+        storage.put(meal.getId(), meal);
+        return meal;
     }
 
     @Override
     public Meal update(Meal meal) {
-        return storage.replace(meal.getId(), meal);
+        storage.replace(meal.getId(), meal);
+        return meal;
     }
 
     @Override
