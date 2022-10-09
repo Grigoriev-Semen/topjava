@@ -1,8 +1,8 @@
 package ru.javawebinar.topjava.web;
 
 import org.slf4j.Logger;
-import ru.javawebinar.topjava.Storage.MealRepository;
-import ru.javawebinar.topjava.Storage.StorageForMeal;
+import ru.javawebinar.topjava.Storage.InMemoryMealRepository;
+import ru.javawebinar.topjava.Storage.MealStorage;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.model.MealTo;
 import ru.javawebinar.topjava.util.MealsUtil;
@@ -21,30 +21,24 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 public class MealServlet extends HttpServlet {
     private static final Logger log = getLogger(MealServlet.class);
-    private StorageForMeal storageForMeal;
-    private final int CALORIES_PER_DAY = 2000;
+    private MealStorage mealStorage;
+    private final static int CALORIES_PER_DAY = 2000;
 
     @Override
     public void init() throws ServletException {
         super.init();
-        storageForMeal = new MealRepository();
+        mealStorage = new InMemoryMealRepository();
     }
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String action = request.getParameter("action");
-        if (action == null) {
-            List<MealTo> mealsTo = MealsUtil.filteredByStreams(storageForMeal.getAll(), LocalTime.MIN, LocalTime.MAX, CALORIES_PER_DAY);
-            request.setAttribute("meals", mealsTo);
-            request.getRequestDispatcher("/listMeals.jsp").forward(request, response);
-            return;
-        }
 
-        switch (action) {
+        switch (action == null ? "" : action) {
             case "delete": {
                 int id = getAndParseId(request);
-                log.debug("Delete meal id={} and redirect to meals", id);
-                storageForMeal.delete(id);
+                log.debug("Delete meal id = {} and redirect to meals", id);
+                mealStorage.delete(id);
                 response.sendRedirect("meals");
                 return;
             }
@@ -57,14 +51,18 @@ public class MealServlet extends HttpServlet {
             }
             case "edit": {
                 int id = getAndParseId(request);
-                log.debug("Edit meal :" + id);
-                Meal meal = storageForMeal.get(id);
+                log.debug("Edit meal id = {}", id);
+                Meal meal = mealStorage.get(id);
                 request.setAttribute("meal", meal);
                 request.getRequestDispatcher("/addMeal.jsp").forward(request, response);
                 break;
             }
+            default:
+                List<MealTo> mealsTo = MealsUtil.filteredByStreams(mealStorage.getAll(), LocalTime.MIN, LocalTime.MAX, CALORIES_PER_DAY);
+                request.setAttribute("meals", mealsTo);
+                request.getRequestDispatcher("/listMeals.jsp").forward(request, response);
+                break;
         }
-        response.sendRedirect("listMeals.jsp");
     }
 
     @Override
@@ -80,10 +78,10 @@ public class MealServlet extends HttpServlet {
         log.debug("Get parameters: id = {}, Date - {}, calories - {}, description - {}", id, ldt, calories, description);
 
         if (id.isEmpty()) {
-            storageForMeal.create(new Meal(ldt, description, calories));
+            mealStorage.create(new Meal(ldt, description, calories));
             log.debug("New meal create and add");
         } else {
-            storageForMeal.update(new Meal(Integer.parseInt(id), ldt, description, calories));
+            mealStorage.update(new Meal(Integer.parseInt(id), ldt, description, calories));
             log.debug("Meal update");
         }
         response.sendRedirect("meals");

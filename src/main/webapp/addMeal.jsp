@@ -26,14 +26,12 @@
 
     <dl>
         <dt>Калории:</dt>
-        <dd><input type="text" name="calories" required
-                   pattern="[0-9]*"
-                   title="Поле должно содержать только числа" value="${meal.calories}"></dd>
+        <dd><input type="number" size="4" min="1" name="calories"
+                   value="${meal.calories}"></dd>
     </dl>
     <hr>
     <button type="submit">${param.action == 'add' ? 'Сохранить' : 'Изменить'}</button>
     <button type="reset" onclick="window.history.back()">Отменить</button>
 </form>
-
 </body>
 </html>

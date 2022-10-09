@@ -9,43 +9,39 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class MealRepository implements StorageForMeal {
-    private final Map<Integer, Meal> storageMeal = new ConcurrentHashMap<>();
-    private AtomicInteger id = new AtomicInteger(1);
+public class InMemoryMealRepository implements MealStorage {
+    private final Map<Integer, Meal> storage = new ConcurrentHashMap<>();
+    private final AtomicInteger id = new AtomicInteger(1);
 
-    public MealRepository() {
-        for (Meal meal : MealsUtil.getListMealTo()) {
+    public InMemoryMealRepository() {
+        for (Meal meal : MealsUtil.getMealList()) {
             create(meal);
         }
     }
 
     @Override
     public List<Meal> getAll() {
-        return new ArrayList<>(storageMeal.values());
+        return new ArrayList<>(storage.values());
     }
 
     @Override
     public Meal create(Meal meal) {
         meal.setId(id.getAndIncrement());
-        storageMeal.put(meal.getId(), meal);
-        return meal;
+        return storage.put(meal.getId(), meal);
     }
 
     @Override
     public Meal update(Meal meal) {
-        if (storageMeal.containsKey(meal.getId())) {
-            storageMeal.put(meal.getId(), meal);
-        }
-        return meal;
+        return storage.replace(meal.getId(), meal);
     }
 
     @Override
     public Meal get(int id) {
-        return storageMeal.get(id);
+        return storage.get(id);
     }
 
     @Override
     public void delete(int id) {
-        storageMeal.remove(id);
+        storage.remove(id);
     }
 }
