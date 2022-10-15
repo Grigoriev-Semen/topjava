@@ -6,40 +6,58 @@ import org.springframework.stereotype.Repository;
 import ru.javawebinar.topjava.model.User;
 import ru.javawebinar.topjava.repository.UserRepository;
 
-import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 @Repository
 public class InMemoryUserRepository implements UserRepository {
     private static final Logger log = LoggerFactory.getLogger(InMemoryUserRepository.class);
-
-    @Override
-    public boolean delete(int id) {
-        log.info("delete {}", id);
-        return true;
-    }
+    private final Map<Integer, User> repository = new ConcurrentHashMap<>();
+    private final AtomicInteger counter = new AtomicInteger(0);
 
     @Override
     public User save(User user) {
-        log.info("save {}", user);
+        if (user.isNew()) {
+            user.setId(counter.incrementAndGet());
+            repository.put(user.getId(), user);
+            log.info("Save user - {}", user);
+            return user;
+        }
+        repository.computeIfPresent(user.getId(), (id, oldUser) -> user);
+        log.info("Update user - {} by id - {}", user, user.getId());
         return user;
     }
 
     @Override
+    public boolean delete(int id) {
+        log.info("Delete user by id - {}", id);
+        return repository.remove(id) != null;
+    }
+
+    @Override
     public User get(int id) {
-        log.info("get {}", id);
-        return null;
+        log.info("Get user by id - {}", id);
+        return repository.get(id);
     }
 
     @Override
     public List<User> getAll() {
-        log.info("getAll");
-        return Collections.emptyList();
+        log.info("Get all users");
+        return repository.values().stream()
+                .sorted(Comparator.comparing(User::getName).thenComparing(User::getEmail))
+                .collect(Collectors.toList());
     }
 
     @Override
     public User getByEmail(String email) {
-        log.info("getByEmail {}", email);
-        return null;
+        log.info("Get user by email - {}", email);
+        return repository.values().stream()
+                .filter(user -> user.getEmail().equals(email))
+                .findFirst()
+                .orElse(null);
     }
 }
