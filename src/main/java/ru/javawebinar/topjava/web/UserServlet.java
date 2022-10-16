@@ -22,6 +22,7 @@ public class UserServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         int id = Integer.parseInt(request.getParameter("userId"));
+        log.debug("get meals by userId {}", id);
         SecurityUtil.setId(id);
         response.sendRedirect("meals");
     }

@@ -7,7 +7,6 @@ import org.springframework.stereotype.Controller;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.service.MealService;
 import ru.javawebinar.topjava.to.MealTo;
-import ru.javawebinar.topjava.util.MealsUtil;
 import ru.javawebinar.topjava.web.SecurityUtil;
 
 import java.time.LocalDate;
@@ -53,7 +52,8 @@ public class MealRestController {
     public List<MealTo> getAll() {
         log.info("Get all meals");
         int userId = SecurityUtil.authUserId();
-        return service.getAll(userId);
+        int caloriesPerDay = SecurityUtil.authUserCaloriesPerDay();
+        return service.getAll(userId, caloriesPerDay);
     }
 
     public List<MealTo> getAllBetweenDate(LocalTime timeStart, LocalTime timeEnd, LocalDate dateStart, LocalDate dateEnd) {
@@ -64,8 +64,6 @@ public class MealRestController {
         dateStart = dateStart == null ? LocalDate.MIN : dateStart;
         dateEnd = dateEnd == null ? LocalDate.MAX : dateEnd;
 
-        List<Meal> mealsDateFiltered = service.getAllBetweenDate(dateStart, dateEnd, userId);
-
-        return MealsUtil.getFilteredTos(mealsDateFiltered, MealsUtil.DEFAULT_CALORIES_PER_DAY, timeStart, timeEnd);
+        return service.getAllBetweenDate(dateStart, dateEnd, timeStart, timeEnd, userId);
     }
 }
