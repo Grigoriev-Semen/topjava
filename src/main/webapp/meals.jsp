@@ -28,22 +28,22 @@
 
         <div style="display: inline-block">
             <label style="display: block" for="dateStart">От даты (включая)</label>
-            <input type="date" name="dateStart" id="dateStart">
+            <input type="date" name="dateStart" id="dateStart" value="${param.dateStart}">
         </div>
 
         <div style="display: inline-block">
             <label style="display: block" for="dateEnd">До даты (включая)</label>
-            <input type="date" name="dateEnd" id="dateEnd" autocomplete="off">
+            <input type="date" name="dateEnd" id="dateEnd" value="${param.dateEnd}">
         </div>
 
         <div style="display: inline-block">
             <label style="display: block" for="timeStart">От времени (включая)</label>
-            <input type="time" name="timeStart" id="timeStart">
+            <input type="time" name="timeStart" id="timeStart" value="${param.timeStart}">
         </div>
 
         <div style="display: inline-block">
             <label style="display: block" for="timeEnd">До времени (включая)</label>
-            <input type="time" name="timeEnd" id="timeEnd">
+            <input type="time" name="timeEnd" id="timeEnd" value="${param.timeEnd}">
         </div>
 
         <button type="submit">Filter</button>

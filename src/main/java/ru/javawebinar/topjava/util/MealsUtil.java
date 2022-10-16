@@ -19,7 +19,7 @@ import static java.util.stream.Collectors.toList;
 public class MealsUtil {
     public static final int DEFAULT_CALORIES_PER_DAY = 2000;
 
-    public static final List<Meal> meals = Arrays.asList(
+    public static final List<Meal> mealsUser = Arrays.asList(
             new Meal(LocalDateTime.of(2020, Month.JANUARY, 30, 10, 0), "Завтрак", 500),
             new Meal(LocalDateTime.of(2020, Month.JANUARY, 30, 13, 0), "Обед", 1000),
             new Meal(LocalDateTime.of(2020, Month.JANUARY, 30, 20, 0), "Ужин", 500),
@@ -27,6 +27,21 @@ public class MealsUtil {
             new Meal(LocalDateTime.of(2020, Month.JANUARY, 31, 10, 0), "Завтрак", 1000),
             new Meal(LocalDateTime.of(2020, Month.JANUARY, 31, 13, 0), "Обед", 500),
             new Meal(LocalDateTime.of(2020, Month.JANUARY, 31, 20, 0), "Ужин", 410)
+    );
+
+    public static final List<Meal> mealsAdmin = Arrays.asList(
+            new Meal(LocalDateTime.of(2022, Month.JANUARY, 1, 10, 0), "Завтрак", 500),
+            new Meal(LocalDateTime.of(2022, Month.JANUARY, 1, 13, 0), "Обед", 1000),
+            new Meal(LocalDateTime.of(2022, Month.JANUARY, 1, 20, 0), "Ужин", 500),
+            new Meal(LocalDateTime.of(2022, Month.JANUARY, 2, 10, 0), "Завтрак", 100),
+            new Meal(LocalDateTime.of(2022, Month.JANUARY, 2, 13, 0), "Обед", 1000),
+            new Meal(LocalDateTime.of(2022, Month.JANUARY, 2, 15, 0), "Обед2", 500),
+            new Meal(LocalDateTime.of(2022, Month.JANUARY, 2, 17, 0), "Ужин", 500),
+            new Meal(LocalDateTime.of(2022, Month.JANUARY, 3, 10, 0), "Завтрак", 500),
+            new Meal(LocalDateTime.of(2022, Month.JANUARY, 3, 13, 0), "Обед", 500),
+            new Meal(LocalDateTime.of(2022, Month.JANUARY, 3, 17, 0), "Ужин", 500),
+            new Meal(LocalDateTime.of(2022, Month.JANUARY, 4, 13, 0), "Обед", 500),
+            new Meal(LocalDateTime.of(2022, Month.JANUARY, 5, 20, 0), "Ужин", 410)
     );
 
     public static List<MealTo> getTos(Collection<Meal> meals, int caloriesPerDay) {
@@ -51,15 +66,5 @@ public class MealsUtil {
 
     private static MealTo createTo(Meal meal, boolean excess) {
         return new MealTo(meal.getId(), meal.getDateTime(), meal.getDescription(), meal.getCalories(), excess);
-    }
-
-    public static Collection<MealTo> getFilteredTos(Collection<Meal> meals, LocalDateTime start, LocalDateTime end, int caloriesPerDay) {
-        Map<LocalDate, Integer> caloriesSumByDate = meals.stream()
-                .collect(Collectors.groupingBy(Meal::getDate, Collectors.summingInt(Meal::getCalories)));
-
-        return meals.stream()
-                .filter(meal -> DateTimeUtil.isBetweenHalfOpen(meal.getDateTime(), start, end))
-                .map(meal -> createTo(meal, caloriesSumByDate.get(meal.getDate()) > caloriesPerDay))
-                .collect(toList());
     }
 }

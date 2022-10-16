@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import ru.javawebinar.topjava.model.Meal;
+import ru.javawebinar.topjava.util.DateTimeUtil;
 import ru.javawebinar.topjava.web.meal.MealRestController;
 
 import javax.servlet.ServletException;
@@ -32,7 +33,6 @@ public class MealServlet extends HttpServlet {
 
     @Override
     public void destroy() {
-        super.destroy();
         appCtx.close();
     }
 
@@ -76,11 +76,11 @@ public class MealServlet extends HttpServlet {
                 request.getRequestDispatcher("/mealForm.jsp").forward(request, response);
                 break;
             case "filter":
-                LocalTime timeStart = request.getParameter("timeStart").isEmpty() ? null : LocalTime.parse(request.getParameter("timeStart"));
-                LocalTime timeEnd = request.getParameter("timeEnd").isEmpty() ? null : LocalTime.parse(request.getParameter("timeEnd"));
+                LocalTime timeStart = DateTimeUtil.parseLocalTime(request.getParameter("timeStart"));
+                LocalTime timeEnd = DateTimeUtil.parseLocalTime(request.getParameter("timeEnd"));
 
-                LocalDate dateStart = request.getParameter("dateStart").isEmpty() ? null : LocalDate.parse(request.getParameter("dateStart"));
-                LocalDate dateEnd = request.getParameter("dateEnd").isEmpty() ? null : LocalDate.parse(request.getParameter("dateEnd"));
+                LocalDate dateStart = DateTimeUtil.parseLocalDate(request.getParameter("dateStart"));
+                LocalDate dateEnd = DateTimeUtil.parseLocalDate(request.getParameter("dateEnd"));
 
                 log.info("Get: timeStart - {}; timeEnd - {}; dateStart - {}; dateEnd - {}", timeStart, timeEnd, dateStart, dateEnd);
                 request.setAttribute("meals",

@@ -5,9 +5,9 @@ import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.repository.MealRepository;
 import ru.javawebinar.topjava.to.MealTo;
 import ru.javawebinar.topjava.util.MealsUtil;
+import ru.javawebinar.topjava.web.SecurityUtil;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
+import java.time.LocalDate;
 import java.util.List;
 
 import static ru.javawebinar.topjava.util.ValidationUtil.checkNotFoundWithId;
@@ -21,7 +21,7 @@ public class MealService {
         this.repository = repository;
     }
 
-    public Meal create(int userId, Meal meal) {
+    public Meal create(Meal meal, int userId) {
         return repository.save(meal, userId);
     }
 
@@ -33,15 +33,15 @@ public class MealService {
         return checkNotFoundWithId(repository.get(id, userId), id);
     }
 
-    public void update(int userId, Meal meal) {
-        checkNotFoundWithId(repository.save(meal, userId), meal.getId());
+    public Meal update(Meal meal, int userId) {
+        return checkNotFoundWithId(repository.save(meal, userId), meal.getId());
     }
 
     public List<MealTo> getAll(int userId) {
-        return new ArrayList<>(MealsUtil.getTos(repository.getAll(userId), MealsUtil.DEFAULT_CALORIES_PER_DAY));
+        return MealsUtil.getTos(repository.getAll(userId), SecurityUtil.authUserCaloriesPerDay());
     }
 
-    public List<MealTo> getAllBetweenDate(int userId, LocalDateTime start, LocalDateTime end) {
-        return repository.getAllBetweenDate(userId, start, end);
+    public List<Meal> getAllBetweenDate(LocalDate start, LocalDate end, int userId) {
+        return repository.getAllBetweenDate(start, end, userId);
     }
 }
