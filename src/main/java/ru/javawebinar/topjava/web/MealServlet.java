@@ -84,7 +84,7 @@ public class MealServlet extends HttpServlet {
 
                 log.info("Get: timeStart - {}; timeEnd - {}; dateStart - {}; dateEnd - {}", timeStart, timeEnd, dateStart, dateEnd);
                 request.setAttribute("meals",
-                        mealRestController.getAllBetweenDate(timeStart, timeEnd, dateStart, dateEnd));
+                        mealRestController.getAllBetweenDates(timeStart, timeEnd, dateStart, dateEnd));
                 request.getRequestDispatcher("/meals.jsp").forward(request, response);
                 break;
             case "all":

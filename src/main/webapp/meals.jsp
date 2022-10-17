@@ -42,7 +42,7 @@
         </div>
 
         <div style="display: inline-block">
-            <label style="display: block" for="timeEnd">До времени (включая)</label>
+            <label style="display: block" for="timeEnd">До времени (исключая)</label>
             <input type="time" name="timeEnd" id="timeEnd" value="${param.timeEnd}">
         </div>
 

@@ -13,7 +13,7 @@ public class DateTimeUtil {
     }
 
     public static <T extends Comparable<T>> boolean isBetweenHalfOpen(T value, T start, T end) {
-        return value.compareTo(start) >= 0 && value.compareTo(end) <= 0;
+        return value.compareTo(start) >= 0 && value.compareTo(end) < 0;
     }
 
     public static LocalDate parseLocalDate(String strDate) {
