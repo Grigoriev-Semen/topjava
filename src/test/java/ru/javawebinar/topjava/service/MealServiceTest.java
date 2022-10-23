@@ -13,7 +13,6 @@ import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.util.exception.NotFoundException;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.Month;
 import java.util.List;
 
@@ -42,7 +41,7 @@ public class MealServiceTest {
     @Test
     public void get() {
         Meal actual = service.get(MEAL_ID, USER_ID);
-        assertMatch(actual, MEAL1);
+        assertMatch(actual, meal_1);
     }
 
     @Test
@@ -55,7 +54,7 @@ public class MealServiceTest {
     public void getBetweenInclusive() {
         assertMatch(service.getBetweenInclusive(
                 LocalDate.of(2022, Month.OCTOBER, 22),
-                LocalDate.of(2022, Month.OCTOBER, 22), USER_ID), MEAL3, MEAL2, MEAL1);
+                LocalDate.of(2022, Month.OCTOBER, 22), USER_ID), meal_3, meal_2, meal_1);
     }
 
     @Test
@@ -68,30 +67,46 @@ public class MealServiceTest {
     public void update() {
         Meal expected = getUpdated();
         service.update(expected, USER_ID);
+        expected = getUpdated();
         assertMatch(service.get(MEAL_ID, USER_ID), expected);
     }
 
     @Test
     public void create() {
-        Meal actual = getNew();
-        Meal expected = service.create(actual, USER_ID);
-        actual.setId(expected.getId());
+        Meal expected = getNew();
+        Meal actual = service.create(expected, USER_ID);
+        expected.setId(actual.getId());
         assertMatch(actual, expected);
+        assertMatch(service.get(actual.getId(), USER_ID), expected);
     }
 
-    @Test(expected = DuplicateKeyException.class)
+    @Test
     public void createDuplicateDateTime() {
-        Meal expected = new Meal(LocalDateTime.of(2022, Month.OCTOBER, 22, 10, 0), "Задублированный ужин", 500);
-        service.create(expected, USER_ID);
+        assertThrows(DuplicateKeyException.class, () ->
+                service.create(new Meal(meal_1.getDateTime(), "Задублированный ужин", 500), USER_ID));
     }
 
-    @Test(expected = NotFoundException.class)
+    @Test
     public void deleteNotFound() {
-        service.delete(ADMIN_MEAL_ID, USER_ID);
+        assertThrows(NotFoundException.class, () ->
+                service.delete(ADMIN_MEAL_ID, USER_ID));
     }
 
-    @Test(expected = NotFoundException.class)
+    @Test
     public void updateNotFound() {
-        service.update(MEAL1, ADMIN_ID);
+        assertThrows(NotFoundException.class, () ->
+                service.update(meal_1, ADMIN_ID));
+    }
+
+    @Test
+    public void filterDateTimeNoLimit() {
+        assertMatch(service.getBetweenInclusive(
+                null, null, USER_ID), meal_7, meal_6, meal_5, meal_4, meal_3, meal_2, meal_1);
+    }
+
+    @Test
+    public void getNotOwnMeal() {
+        assertThrows(NotFoundException.class, () ->
+                        assertMatch(service.get(MEAL_ID, ADMIN_ID), meal_1));
     }
 }
