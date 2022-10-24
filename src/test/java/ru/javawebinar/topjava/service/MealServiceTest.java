@@ -105,7 +105,7 @@ public class MealServiceTest {
     }
 
     @Test
-    public void getNotOwnMeal() {
+    public void getNotFound() {
         assertThrows(NotFoundException.class, () ->
                 assertMatch(service.get(MEAL_ID, ADMIN_ID), meal1));
     }
