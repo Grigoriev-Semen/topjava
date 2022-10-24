@@ -41,7 +41,7 @@ public class MealServiceTest {
     @Test
     public void get() {
         Meal actual = service.get(MEAL_ID, USER_ID);
-        assertMatch(actual, meal_1);
+        assertMatch(actual, meal1);
     }
 
     @Test
@@ -54,7 +54,7 @@ public class MealServiceTest {
     public void getBetweenInclusive() {
         assertMatch(service.getBetweenInclusive(
                 LocalDate.of(2022, Month.OCTOBER, 22),
-                LocalDate.of(2022, Month.OCTOBER, 22), USER_ID), meal_3, meal_2, meal_1);
+                LocalDate.of(2022, Month.OCTOBER, 22), USER_ID), meal3, meal2, meal1);
     }
 
     @Test
@@ -65,25 +65,24 @@ public class MealServiceTest {
 
     @Test
     public void update() {
-        Meal expected = getUpdated();
-        service.update(expected, USER_ID);
-        expected = getUpdated();
-        assertMatch(service.get(MEAL_ID, USER_ID), expected);
+        service.update(getUpdated(), USER_ID);
+        assertMatch(service.get(MEAL_ID, USER_ID), getUpdated());
     }
 
     @Test
     public void create() {
+        Meal actual = service.create(getNew(), USER_ID);
+        Integer newId = actual.getId();
         Meal expected = getNew();
-        Meal actual = service.create(expected, USER_ID);
-        expected.setId(actual.getId());
+        expected.setId(newId);
         assertMatch(actual, expected);
-        assertMatch(service.get(actual.getId(), USER_ID), expected);
+        assertMatch(service.get(newId, USER_ID), expected);
     }
 
     @Test
     public void createDuplicateDateTime() {
         assertThrows(DuplicateKeyException.class, () ->
-                service.create(new Meal(meal_1.getDateTime(), "Задублированный ужин", 500), USER_ID));
+                service.create(new Meal(meal1.getDateTime(), "Задублированный ужин", 500), USER_ID));
     }
 
     @Test
@@ -95,18 +94,19 @@ public class MealServiceTest {
     @Test
     public void updateNotFound() {
         assertThrows(NotFoundException.class, () ->
-                service.update(meal_1, ADMIN_ID));
+                service.update(getUpdated(), ADMIN_ID));
+        assertMatch(service.get(MEAL_ID, USER_ID), meal1);
     }
 
     @Test
     public void filterDateTimeNoLimit() {
-        assertMatch(service.getBetweenInclusive(
-                null, null, USER_ID), meal_7, meal_6, meal_5, meal_4, meal_3, meal_2, meal_1);
+        assertMatch(service.getBetweenInclusive(null, null, USER_ID),
+                meal7, meal6, meal5, meal4, meal3, meal2, meal1);
     }
 
     @Test
     public void getNotOwnMeal() {
         assertThrows(NotFoundException.class, () ->
-                        assertMatch(service.get(MEAL_ID, ADMIN_ID), meal_1));
+                assertMatch(service.get(MEAL_ID, ADMIN_ID), meal1));
     }
 }
