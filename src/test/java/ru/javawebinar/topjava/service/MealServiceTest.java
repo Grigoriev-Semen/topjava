@@ -1,7 +1,12 @@
 package ru.javawebinar.topjava.service;
 
+import org.junit.AfterClass;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.Stopwatch;
+import org.junit.runner.Description;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.test.context.ContextConfiguration;
@@ -13,8 +18,10 @@ import ru.javawebinar.topjava.util.exception.NotFoundException;
 
 import java.time.LocalDate;
 import java.time.Month;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertThrows;
+import static org.slf4j.LoggerFactory.getLogger;
 import static ru.javawebinar.topjava.MealTestData.*;
 import static ru.javawebinar.topjava.UserTestData.ADMIN_ID;
 import static ru.javawebinar.topjava.UserTestData.USER_ID;
@@ -26,6 +33,27 @@ import static ru.javawebinar.topjava.UserTestData.USER_ID;
 @RunWith(SpringRunner.class)
 @Sql(scripts = "classpath:db/populateDB.sql", config = @SqlConfig(encoding = "UTF-8"))
 public class MealServiceTest {
+    private static final Logger log = getLogger(MealServiceTest.class);
+    private static final StringBuilder testsResult = new StringBuilder();
+    private static final String DELIM = "--------------------------------------------";
+
+    @Rule
+    public Stopwatch stopwatch = new Stopwatch() {
+       // https://korelyakov.com/blog/how-to-add-execution-time-in-junit-tests/
+        @Override
+        protected void finished(long nanos, Description description) {
+            String result = String.format("\n%-30s %7d", description.getMethodName(), TimeUnit.NANOSECONDS.toMillis(nanos));
+            testsResult.append(result).append('\n');
+            log.info(result + " ms\n");
+        }
+    };
+
+    @AfterClass
+    public static void printResult() {
+        log.info("\n" + DELIM +
+                "\nTest name                      Duration, ms" +
+                "\n" + DELIM + "\n" + testsResult + DELIM + "\n");
+    }
 
     @Autowired
     private MealService service;
