@@ -33,7 +33,6 @@ public class Meal extends AbstractBaseEntity {
     private String description;
 
     @Column(name = "calories", nullable = false)
-    @NotNull
     @Range(min = 10, max = 3000, message = "Value must be from 10 before 3000!")
     private int calories;
 

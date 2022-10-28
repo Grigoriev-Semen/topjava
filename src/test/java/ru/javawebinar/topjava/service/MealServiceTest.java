@@ -33,9 +33,20 @@ import static ru.javawebinar.topjava.UserTestData.USER_ID;
 @RunWith(SpringRunner.class)
 @Sql(scripts = "classpath:db/populateDB.sql", config = @SqlConfig(encoding = "UTF-8"))
 public class MealServiceTest {
+    public static final String RESET = "\033[0m";
+    public static final String RED = "\033[0;31m";
+    public static final String GREEN = "\033[0;32m";
+    public static final String BLUE = "\033[0;34m";
     private static final Logger log = getLogger(MealServiceTest.class);
     private static final StringBuilder testsResult = new StringBuilder();
-    private static final String DELIM = "--------------------------------------------";
+    private static final String DELIM = GREEN + "--------------------------------------------";
+
+    @AfterClass
+    public static void printResult() {
+        log.info("\n" + DELIM +
+                "\n" + RED + "Test name                       Duration, ms" +
+                "\n" + DELIM + "\n" + testsResult + DELIM + "\n" + RESET);
+    }
 
     @Rule
     public Stopwatch stopwatch = new Stopwatch() {
@@ -43,17 +54,10 @@ public class MealServiceTest {
         @Override
         protected void finished(long nanos, Description description) {
             String result = String.format("\n%-30s %7d", description.getMethodName(), TimeUnit.NANOSECONDS.toMillis(nanos));
-            testsResult.append(result).append('\n');
+            testsResult.append(BLUE).append(result).append('\n');
             log.info(result + " ms\n");
         }
     };
-
-    @AfterClass
-    public static void printResult() {
-        log.info("\n" + DELIM +
-                "\nTest name                      Duration, ms" +
-                "\n" + DELIM + "\n" + testsResult + DELIM + "\n");
-    }
 
     @Autowired
     private MealService service;
