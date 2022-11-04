@@ -14,8 +14,8 @@ public class DataJpaMealRepository implements MealRepository {
     private final CrudUserRepository userRepository;
     private static final Sort SORT_DATETIME_DESC = Sort.by(Sort.Direction.DESC, "dateTime");
 
-    public DataJpaMealRepository(CrudMealRepository crudRepository, CrudUserRepository userRepository) {
-        this.mealRepository = crudRepository;
+    public DataJpaMealRepository(CrudMealRepository mealRepository, CrudUserRepository userRepository) {
+        this.mealRepository = mealRepository;
         this.userRepository = userRepository;
     }
 
