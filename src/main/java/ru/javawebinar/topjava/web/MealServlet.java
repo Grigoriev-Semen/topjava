@@ -3,6 +3,7 @@ package ru.javawebinar.topjava.web;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.util.StringUtils;
+import ru.javawebinar.topjava.Profiles;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.web.meal.MealRestController;
 
@@ -27,7 +28,18 @@ public class MealServlet extends HttpServlet {
 
     @Override
     public void init() {
-        springContext = new ClassPathXmlApplicationContext("spring/spring-app.xml", "spring/spring-db.xml");
+        /* https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/context/support/ClassPathXmlApplicationContext.html
+        ClassPathXmlApplicationContext(String[] configLocations, boolean refresh)
+        refresh — следует ли автоматически обновлять контекст, загружая все
+        определения bean-компонентов и создавая все синглтоны. В качестве альтернативы вызовите обновление вручную после дальнейшей настройки контекста. */
+        springContext = new ClassPathXmlApplicationContext(new String[]{"spring/spring-app.xml", "spring/spring-db.xml"}, false);
+        /* https://stackoverflow.com/questions/40268574/how-to-set-the-active-profile-when-creating-spring-context-programmatically
+           getEnvironment() - вернет среду (ConfigurableEnvironment) для контекста приложения в настраиваемой форме,
+                              позволяющей выполнять дальнейшую настройку.
+            refresh() - загрузит или обновит конфигурацию.
+         */
+        springContext.getEnvironment().setActiveProfiles(Profiles.getActiveDbProfile(), Profiles.REPOSITORY_IMPLEMENTATION);
+        springContext.refresh();
         mealController = springContext.getBean(MealRestController.class);
     }
 
