@@ -43,7 +43,9 @@ public class DataJpaMealRepository implements MealRepository {
 
     @Override
     public List<Meal> getAll(int userId) {
-        return mealRepository.findAll(SORT_DATETIME_DESC);
+        return mealRepository.findAll(SORT_DATETIME_DESC).stream()
+                .filter(m -> m.getUser().getId() == userId)
+                .toList();
     }
 
     @Override
