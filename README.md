@@ -101,9 +101,9 @@ Postgresql и HSQLDB.
     - <a href="https://github.com/JavaOPs/topjava/wiki/IDEA#%D0%9F%D0%BE%D1%81%D1%82%D0%B0%D0%B2%D0%B8%D1%82%D1%8C-%D0%BA%D0%BE%D0%B4%D0%B8%D1%80%D0%BE%D0%B2%D0%BA%D1%83-utf-8">
       Поставить кодировку UTF-8</a>
     -
-    Опционально: <a href="https://github.com/JavaOPs/topjava/wiki/IDEA#%D0%9F%D0%BE%D0%BC%D0%B5%D0%BD%D1%8F%D1%82%D1%8C-%D1%84%D0%BE%D0%BD%D1%82-%D0%BF%D0%BE-%D1%83%D0%BC%D0%BE%D0%BB%D1%87%D0%B0%D0%BD%D0%B8%D1%8E-dejavu">
-    Поменять фонт по умолчанию (DejaVu)</a> или на **
-    новый [JetBrains Mono](https://habr.com/ru/company/jugru/news/t/484134/)**
+  Опционально: <a href="https://github.com/JavaOPs/topjava/wiki/IDEA#%D0%9F%D0%BE%D0%BC%D0%B5%D0%BD%D1%8F%D1%82%D1%8C-%D1%84%D0%BE%D0%BD%D1%82-%D0%BF%D0%BE-%D1%83%D0%BC%D0%BE%D0%BB%D1%87%D0%B0%D0%BD%D0%B8%D1%8E-dejavu">
+  Поменять фонт по умолчанию (DejaVu)</a> или на **
+  новый [JetBrains Mono](https://habr.com/ru/company/jugru/news/t/484134/)**
 - По ходу видео сделать Apply Patch... скаченного патча Prepare_ to_ HW0.patch
 - Закоммитить и запушить изменения (commit + push)
 - Сделать ветку домашнего задания
@@ -248,7 +248,8 @@ main)
 
 > - ДЗ первого урока будет связано с созданием небольшого [CRUD](https://ru.wikipedia.org/wiki/CRUD) приложения (в
     памяти, без базы данных) на JSP и сервлетах
->  - основы JavaSсript необходимы для понимания проекта, начиная с 8-го занятия
+    >
+- основы JavaSсript необходимы для понимания проекта, начиная с 8-го занятия
 
 ### Полезные ресурсы
 

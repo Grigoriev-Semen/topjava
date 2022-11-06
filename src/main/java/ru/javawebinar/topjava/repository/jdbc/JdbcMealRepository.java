@@ -1,6 +1,6 @@
 package ru.javawebinar.topjava.repository.jdbc;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -16,21 +16,15 @@ import ru.javawebinar.topjava.repository.MealRepository;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.function.Function;
 
-@Repository
-public class JdbcMealRepository implements MealRepository {
+
+public abstract class JdbcMealRepository<T> implements MealRepository {
     private static final RowMapper<Meal> ROW_MAPPER = BeanPropertyRowMapper.newInstance(Meal.class);
     private final JdbcTemplate jdbcTemplate;
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
     private final SimpleJdbcInsert insertMeal;
 
-    private final Function<LocalDateTime, ?> postgresOrHsqldb =
-            time -> Profiles.getActiveDbProfile().equals(Profiles.POSTGRES_DB)
-                    ? time : Timestamp.valueOf(time);
-
-    @Autowired
-    public JdbcMealRepository(JdbcTemplate jdbcTemplate, NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
+    JdbcMealRepository(JdbcTemplate jdbcTemplate, NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
         this.insertMeal = new SimpleJdbcInsert(jdbcTemplate)
                 .withTableName("meals")
                 .usingGeneratedKeyColumns("id");
@@ -39,13 +33,41 @@ public class JdbcMealRepository implements MealRepository {
         this.namedParameterJdbcTemplate = namedParameterJdbcTemplate;
     }
 
+    public abstract T getCorrectTime(LocalDateTime localDateTime);
+
+    @Repository
+    @Profile(Profiles.POSTGRES_DB)
+    public static class LocalDateTimeJdbcMealRepository extends JdbcMealRepository<LocalDateTime> {
+        public LocalDateTimeJdbcMealRepository(JdbcTemplate jdbcTemplate, NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
+            super(jdbcTemplate, namedParameterJdbcTemplate);
+        }
+
+        @Override
+        public LocalDateTime getCorrectTime(LocalDateTime localDateTime) {
+            return localDateTime;
+        }
+    }
+
+    @Repository
+    @Profile(Profiles.HSQL_DB)
+    public static class TimestampJdbcMealRepository extends JdbcMealRepository<Timestamp> {
+        public TimestampJdbcMealRepository(JdbcTemplate jdbcTemplate, NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
+            super(jdbcTemplate, namedParameterJdbcTemplate);
+        }
+
+        @Override
+        public Timestamp getCorrectTime(LocalDateTime localDateTime) {
+            return Timestamp.valueOf(localDateTime);
+        }
+    }
+
     @Override
     public Meal save(Meal meal, int userId) {
         MapSqlParameterSource map = new MapSqlParameterSource()
                 .addValue("id", meal.getId())
                 .addValue("description", meal.getDescription())
                 .addValue("calories", meal.getCalories())
-                .addValue("date_time", postgresOrHsqldb.apply(meal.getDateTime()))
+                .addValue("date_time", getCorrectTime(meal.getDateTime()))
                 .addValue("user_id", userId);
 
         if (meal.isNew()) {
@@ -84,6 +106,6 @@ public class JdbcMealRepository implements MealRepository {
     public List<Meal> getBetweenHalfOpen(LocalDateTime startDateTime, LocalDateTime endDateTime, int userId) {
         return jdbcTemplate.query(
                 "SELECT * FROM meals WHERE user_id=?  AND date_time >=  ? AND date_time < ? ORDER BY date_time DESC",
-                ROW_MAPPER, userId, postgresOrHsqldb.apply(startDateTime), postgresOrHsqldb.apply(endDateTime));
+                ROW_MAPPER, userId, getCorrectTime(startDateTime), getCorrectTime(endDateTime));
     }
 }

@@ -2,6 +2,7 @@ package ru.javawebinar.topjava.repository.datajpa;
 
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.repository.MealRepository;
 
@@ -19,14 +20,13 @@ public class DataJpaMealRepository implements MealRepository {
         this.userRepository = userRepository;
     }
 
+    @Transactional
     @Override
     public Meal save(Meal meal, int userId) {
-        meal.setUser(userRepository.getReferenceById(userId));
-        if (meal.isNew()) {
-            return mealRepository.save(meal);
-        } else if (get(meal.id(), userId) == null) {
+        if (!meal.isNew() && get(meal.id(), userId) == null) {
             return null;
         }
+        meal.setUser(userRepository.getReferenceById(userId));
         return mealRepository.save(meal);
     }
 
@@ -37,15 +37,14 @@ public class DataJpaMealRepository implements MealRepository {
 
     @Override
     public Meal get(int id, int userId) {
-        Meal meal = mealRepository.findById(id).orElse(null);
-        return meal != null && meal.getUser().getId() == userId ? meal : null;
+        return mealRepository.findById(id)
+                .filter(meal ->  meal.getUser().getId() == userId)
+                .orElse(null);
     }
 
     @Override
     public List<Meal> getAll(int userId) {
-        return mealRepository.findAll(SORT_DATETIME_DESC).stream()
-                .filter(m -> m.getUser().getId() == userId)
-                .toList();
+        return mealRepository.getAll(userId);
     }
 
     @Override
