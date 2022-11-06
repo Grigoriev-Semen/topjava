@@ -33,7 +33,7 @@ public abstract class JdbcMealRepository<T> implements MealRepository {
         this.namedParameterJdbcTemplate = namedParameterJdbcTemplate;
     }
 
-    public abstract T getCorrectTime(LocalDateTime localDateTime);
+    protected abstract T getCorrectDateTime(LocalDateTime localDateTime);
 
     @Repository
     @Profile(Profiles.POSTGRES_DB)
@@ -43,7 +43,7 @@ public abstract class JdbcMealRepository<T> implements MealRepository {
         }
 
         @Override
-        public LocalDateTime getCorrectTime(LocalDateTime localDateTime) {
+        protected LocalDateTime getCorrectDateTime(LocalDateTime localDateTime) {
             return localDateTime;
         }
     }
@@ -56,7 +56,7 @@ public abstract class JdbcMealRepository<T> implements MealRepository {
         }
 
         @Override
-        public Timestamp getCorrectTime(LocalDateTime localDateTime) {
+        protected Timestamp getCorrectDateTime(LocalDateTime localDateTime) {
             return Timestamp.valueOf(localDateTime);
         }
     }
@@ -67,7 +67,7 @@ public abstract class JdbcMealRepository<T> implements MealRepository {
                 .addValue("id", meal.getId())
                 .addValue("description", meal.getDescription())
                 .addValue("calories", meal.getCalories())
-                .addValue("date_time", getCorrectTime(meal.getDateTime()))
+                .addValue("date_time", getCorrectDateTime(meal.getDateTime()))
                 .addValue("user_id", userId);
 
         if (meal.isNew()) {
@@ -106,6 +106,6 @@ public abstract class JdbcMealRepository<T> implements MealRepository {
     public List<Meal> getBetweenHalfOpen(LocalDateTime startDateTime, LocalDateTime endDateTime, int userId) {
         return jdbcTemplate.query(
                 "SELECT * FROM meals WHERE user_id=?  AND date_time >=  ? AND date_time < ? ORDER BY date_time DESC",
-                ROW_MAPPER, userId, getCorrectTime(startDateTime), getCorrectTime(endDateTime));
+                ROW_MAPPER, userId, getCorrectDateTime(startDateTime), getCorrectDateTime(endDateTime));
     }
 }
