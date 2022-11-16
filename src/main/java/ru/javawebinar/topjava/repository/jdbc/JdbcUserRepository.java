@@ -84,7 +84,6 @@ public class JdbcUserRepository implements UserRepository {
     @Override
     public List<User> getAll() {
         List<User> users = jdbcTemplate.query("SELECT * FROM users ORDER BY name, email", ROW_MAPPER);
-        // users.forEach(this::setRoles);
 
         Map<Integer, Set<Role>> mapRoles = new HashMap<>();
         jdbcTemplate.query("SELECT * FROM user_roles", rs -> {
