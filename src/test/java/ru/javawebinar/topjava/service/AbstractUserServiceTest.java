@@ -41,10 +41,20 @@ public abstract class AbstractUserServiceTest extends AbstractServiceTest {
     }
 
     @Test
-    public void create() {
-        User created = service.create(getNew());
+    public void createUser() {
+        User created = service.create(getNewUser());
         int newId = created.id();
-        User newUser = getNew();
+        User newUser = getNewUser();
+        newUser.setId(newId);
+        USER_MATCHER.assertMatch(created, newUser);
+        USER_MATCHER.assertMatch(service.get(newId), newUser);
+    }
+
+    @Test
+    public void createAdmin() {
+        User created = service.create(getNewAdmin());
+        int newId = created.id();
+        User newUser = getNewAdmin();
         newUser.setId(newId);
         USER_MATCHER.assertMatch(created, newUser);
         USER_MATCHER.assertMatch(service.get(newId), newUser);
@@ -57,9 +67,15 @@ public abstract class AbstractUserServiceTest extends AbstractServiceTest {
     }
 
     @Test
-    public void delete() {
+    public void deleteUser() {
         service.delete(USER_ID);
         assertThrows(NotFoundException.class, () -> service.get(USER_ID));
+    }
+
+    @Test
+    public void deleteAdmin() {
+        service.delete(ADMIN_ID);
+        assertThrows(NotFoundException.class, () -> service.get(ADMIN_ID));
     }
 
     @Test

@@ -51,14 +51,16 @@ public class JdbcUserRepository implements UserRepository {
             user.setId(newKey.intValue());
             insertsRoles(user);
             return user;
-        } else if (namedParameterJdbcTemplate.update("""
-                   UPDATE users SET name=:name, email=:email, password=:password, 
-                   registered=:registered, enabled=:enabled, calories_per_day=:caloriesPerDay WHERE id=:id
-                """, parameterSource) == 0) {
-            return null;
+        } else {
+            if (namedParameterJdbcTemplate.update("""
+                       UPDATE users SET name=:name, email=:email, password=:password, 
+                       registered=:registered, enabled=:enabled, calories_per_day=:caloriesPerDay WHERE id=:id
+                    """, parameterSource) == 0) {
+                return null;
+            }
+            deleteRoles(user);
+            insertsRoles(user);
         }
-        deleteRoles(user);
-        insertsRoles(user);
         return user;
     }
 
@@ -87,7 +89,7 @@ public class JdbcUserRepository implements UserRepository {
 
         Map<Integer, Set<Role>> mapRoles = new HashMap<>();
         jdbcTemplate.query("SELECT * FROM user_roles", rs -> {
-            mapRoles.computeIfAbsent(rs.getInt("user_id"), userId -> new HashSet<Role>())
+            mapRoles.computeIfAbsent(rs.getInt("user_id"), userId -> EnumSet.noneOf(Role.class))
                     .add(Role.valueOf(rs.getString("role")));
 
         });
